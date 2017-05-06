@@ -1,21 +1,7 @@
-var config = require('./config');
-
 var osc = require('node-osc');
+var config = require('./config');
 //送信先IPアドレス
 var oscClient = new osc.Client(config.oscClient.ipAddress, config.oscClient.port);
-
-// var five = require('johnny-five');
-// var board = new five.Board({ port: "/dev/tty.usbmodem1411" });
-//
-// board.on("ready", function(){
-//   console.log("lsdkfjlsdkfjklsas");
-//   this.pinMode(13, five.Pin.OUTPUT);
-//   this.digitalWrite(13,0);
-//
-//   // var led = new five.Led(13);
-//   var _this = this;
-//   // led.blink(10);
-// });
 
 class Quantizer {
     constructor() {
@@ -71,7 +57,7 @@ class Quantizer {
         }
     }
     isOnBeat() {
-        if (this.count % (this.grid / 4) == 0) {  
+        if (this.count % (this.grid / 4) == 0) {
             this.send("/beat/4", this.count / (this.grid / 4));
         }
         if (this.count % (this.grid / 8) == 0) {
@@ -100,6 +86,7 @@ class Quantizer {
 };
 module.exports = Quantizer;
 
+//Console Color
 var black = '\u001b[30m';
 var red = '\u001b[31m';
 var green = '\u001b[32m';
