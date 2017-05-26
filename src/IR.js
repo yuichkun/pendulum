@@ -1,7 +1,7 @@
-var config = require('./config');
-var irParams = config.irParams;
+const config = require('../config');
+const irParams = config.irParams;
 
-class IR {
+module.exports = class IR {
   constructor(port, index){
     this.port = port;
     this.index = index;
@@ -16,14 +16,7 @@ class IR {
     this.bufferMax = 0;
     this.bufferMin = 10000;
   }
-
-  update(){
-    this.counter++;
-    if(this.counter > 100){
-      this.counter = 0;
-    }
-  }
-
+  
   detect(scaledInput, scaledAvg){
     return (scaledInput - scaledAvg) > this.thresh;
   }
@@ -35,17 +28,16 @@ class IR {
     }, this.easingTime);
   }
 
-
   calcAvg(input){
     if(this.buffer.length >= this.bufferSize){
 			this.buffer.shift();
 		}
 		this.buffer.push(input);
-		var sum = 0.0;
+		let sum = 0.0;
 		this.bufferMax = 0.0;
 		this.bufferMin = 10000.0;
-		for(var i = 0; i < this.buffer.length; i++){
-      var thisbuffer = this.buffer[i];
+		for(let i = 0; i < this.buffer.length; i++){
+      const thisbuffer = this.buffer[i];
 			if(thisbuffer > this.bufferMax){
 				this.bufferMax = thisbuffer;
 			}
@@ -54,9 +46,7 @@ class IR {
 			}
       sum += thisbuffer;
 		}
-		var avg = sum / this.buffer.length;
+		const avg = sum / this.buffer.length;
 		return avg;
   }
-}
-
-module.exports = IR;
+};
