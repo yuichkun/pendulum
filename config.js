@@ -5,12 +5,18 @@ module.exports = {
     },
     logger:{
       ir:{
-        logging: true,
+        logging: false,
         irLogInterval: 600
       },
       led: {
         logging: true
       }
+    },
+    quantizer:{
+      grid: 16,
+      bpm: 100,
+      click: true,
+      active: true
     },
     arduinoPorts: [
         {
@@ -94,7 +100,7 @@ module.exports = {
         5: {
             bufferSize: 150,
             thresh: 0.2,
-            easingTime: 900
+            easingTime: 800
         },
         6: {
             bufferSize: 100,
