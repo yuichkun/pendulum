@@ -5,7 +5,10 @@ const config = require('../config');
 const shouldLogIRs = config.logger.ir.logging;
 const irLogInterval = config.logger.ir.irLogInterval;
 
-module.exports = class IrBoard {
+const osc = require('node-osc');
+const oscClient = new osc.Client(config.oscClient.ipAddress, config.oscClient.port);
+
+module.exports = class ArdnBoard {
     constructor(port, quantizer) {
         this.id = port.id;
         this.quantizer = quantizer;
@@ -34,7 +37,6 @@ module.exports = class IrBoard {
             const diff = floatFormat(scaledInput - scaledAvg, 3).toFixed(3);
             const address = "/" + String(ir.port.id) + "/" + String(ir.index);
             if (ir.index != 100) {
-                // ir.update();
                 ir.counter++;
                 const detected = ir.detect(scaledInput, scaledAvg);
                 if (detected) {
@@ -45,6 +47,7 @@ module.exports = class IrBoard {
                                 console.log(`${red} BufferSize: ${ir.buffer.length} ${cyan} DIFF: ${diff} ${reset} INPUT ${scaledInput} AVG: ${scaledAvg} ${cyan} OSC-Address: ${address} ${reset}`);
                             }
                         }
+                        oscClient.send('/rawNote', ir.index);
                         _this.quantizer.addNoteQue(ir.index);
                     } else {
                         if (ir.counter % irLogInterval === 0) {

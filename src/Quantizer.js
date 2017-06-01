@@ -29,18 +29,23 @@ module.exports = class Quantizer {
             this.update();
             endTime = Date.now();
             if (this.active) {
-              endTime = Date.now();
-              let diff =  endTime - startTime;
-              let delay = this.interval - diff;
-              // console.log("delay", delay);
-              this.nextInterval = this.interval + delay;
+                endTime = Date.now();
+                let diff = endTime - startTime;
+                let delay = this.interval - diff;
+                // console.log("delay", delay);
+                this.nextInterval = this.interval + delay;
                 thread();
             }
         };
         thread();
     }
-    addNoteQue(id){
-      this.noteQues.push(id);
+    update() {
+        this.isOnBeat();
+        this.counter();
+        this.checkQues();
+    }
+    addNoteQue(id) {
+        this.noteQues.push(id);
     }
     set bpm(bpm) {
         let interval = (60 / bpm) * 4 * 1000 / this.grid;
@@ -52,47 +57,67 @@ module.exports = class Quantizer {
         console.log("\u001b[36mMetronome is: ON\u001b[0m");
         this._click = bool;
     }
-    update() {
-        this.isOnBeat();
-        this.counter();
-        this.checkQues();
-    }
     checkQues() {
-      if(ledGlobalState){
-        _.map(this.boards, (board)=>{
-          _.map(board.leds, (led)=>{
-              // led.run(board, new Diminuator(0.3));
-              led.run(board, new Blinker());
-          })
-        })
-      } else {
-        if (this.count % (this.grid / 16) == 0) {
+        if (ledGlobalState) {
+            _.map(this.boards, (board) => {
+                _.map(board.leds, (led) => {
+                    led.run(board, new Diminuator(0.3));
+                    // led.run(board, new Blinker());
+                })
+            })
+        } else {
             let combo = this.noteQues.length;
-            if (combo >= 1) {
+            if (combo === 4) {
+            // if(combo >= 2){
+                // this.superCombo(combo, new Blinker());
+            } else {
                 // console.log("note ques are ", this.noteQues);
-                for (var i = 0; i < this.noteQues.length; i++) {
+                for (let i = 0; i < this.noteQues.length; i++) {
                     const note = this.noteQues[i];
                     oscClient.send("/note", note, combo);
-                    _.map(this.boards, (board)=>{
-                      _.map(board.leds, (led)=>{
-                        if(note === led.id){
-                          led.combo = combo;
-                          let supplier;
-                          if (led.combo < 3) {
-                              supplier = new Diminuator(1);
-                          } else {
-                              supplier = new Blinker();
-                          }
-                          led.run(board, supplier);
-                        }
-                      })
-                    })
+                    _.map(this.boards, (board) => {
+                        _.map(board.leds, (led) => {
+                            if (note === led.id) {
+                                led.combo = combo;
+                                let supplier;
+                                if (led.combo < 3) {
+                                    supplier = new Diminuator(1);
+                                } else {
+                                    supplier = new Blinker();
+                                }
+                                led.run(board, supplier);
+                                // led.exhibit(board);
+                            }
+                        });
+                    });
                 }
-                this.noteQues = [];
+            }
+            this.noteQues = [];
+        };
+        // }
+    }
+    superCombo(combo, supplier) {
+        for (let note = 1; note <= 6; note++) {
+            let counter = 0;
+            let thread = () => {
+                counter++;
+                setTimeout(callback, 70);
             };
+            let callback = () => {
+                if (counter < 20) {
+                    oscClient.send("/note", note, combo);
+                    thread();
+                }
+            };
+            thread();
         }
-      }
-
+        _.map(this.boards, (board) => {
+            _.map(board.leds, (led) => {
+                led.combo = combo;
+                led.run(board, supplier);
+                console.log(led.id);
+            })
+        });
     }
     isOnBeat() {
         if (this.count % (this.grid / 4) == 0) {

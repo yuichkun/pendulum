@@ -14,8 +14,10 @@ const fiveBoards = new five.Boards(arduinos);
 let ArdnBoards = [];
 
 let quantizer = new Quantizer();
-quantizer.grid = 16;
-quantizer.bpm = 100;
+// quantizer.grid = 16;
+quantizer.grid = config.quantizer.grid;
+// quantizer.bpm = 100;
+quantizer.bpm = config.quantizer.bpm;
 quantizer.click = true;
 quantizer.active = true;
 

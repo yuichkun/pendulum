@@ -48,4 +48,9 @@ module.exports = class Led {
             }
         }
     }
+    exhibit(board){
+      const outputPin = this.outputPin;
+      board.pinMode(outputPin, five.Pin.PWM);
+      board.analogWrite(outputPin, 255);
+    }
 }
